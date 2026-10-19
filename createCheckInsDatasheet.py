@@ -43,8 +43,12 @@ for row in range(2, classes.max_row+1):
         _level = classes[level_col+str(row)].value
         _teachers = classes[teachers_col+str(row)].value
         if _teachers != None:
+            # If class is Minis, Minis I, or Minis II, use first 3 teachers
             # Select only first teacher name in the list
-            _teacher = _teachers.split(',')[0]
+            if _level in ['Minis', 'Minis I', 'Minis II']:
+                _teacher = ','.join(_teachers.split(',')[:3])
+            else:
+                _teacher = _teachers.split(',')[0]
         _first_name = classes[first_name_col+str(row)].value
         _last_name = classes[last_name_col+str(row)].value
         _class = classes[class_col+str(row)].value
@@ -66,16 +70,20 @@ for row in range(2, classes.max_row+1):
             if any(d['name'] == _last_name + ', ' + _first_name and d['teacher'] == _teacher and d['level'] == _level for d in enrollments):
                 continue
 
-            enrollments.append({
-                "name": _last_name + ', ' + _first_name,
-                "teacher": _teacher,
-                "level": _level,
-                "tier": _tier,
-                "class": _class
-            })
+            # Create an enrollment entry for each student/teacher combination
+            for teacher_name in _teacher.split(','):
+                enrollments.append({
+                    "name": _last_name + ', ' + _first_name,
+                    "teacher": teacher_name.strip(),
+                    "level": _level,
+                    "tier": _tier,
+                    "class": _class
+                })
 
-            if _teacher not in teachers_list:
-                teachers_list.append(_teacher)
+            # Add each teacher to the teachers list if not already present
+            for teacher_name in _teacher.split(','):
+                if teacher_name.strip() not in teachers_list:
+                    teachers_list.append(teacher_name.strip())
 
 # Create check in card data sheet using teacher objects
 template_wb = load_workbook(
