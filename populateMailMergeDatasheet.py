@@ -37,23 +37,13 @@ for sheet in data_entry_wb.worksheets:
 
     print("Building list of cards using data from sheet:", sheet.title)
 
-# Order cards by Last Name, First Name and assign card #
-cards = sorted(cards, key=lambda x: (x['Student']))
+# Order cards by Last Name, First Name (ignoring spacing/case so the same
+# student's cards group together even if a sheet was edited by hand) and assign card #
+cards = sorted(cards, key=lambda x: (x['Student'].strip().casefold()))
 card_no = 1
 for card in cards:
     card['Card'] = card_no
     card_no += 1
-
-# Assign page numbers
-page = 1
-breakpoint = (len(cards) // 4) + 1
-for card in cards:
-    if card['Card'] % breakpoint == 0:
-        page = 1
-        card['Page'] = page
-    else:
-        card['Page'] = page
-    page += 1
 
 print("\n","Total cards to process: ", len(cards),"\n")
 print("Populating mail merge datasheet...","\n")
@@ -74,7 +64,6 @@ for card_data in cards:
     mm_sheet['N' + str(mm_sheet.max_row)] = card_data['Cat4']
     mm_sheet['O' + str(mm_sheet.max_row)] = card_data['Cat5']
     mm_sheet['P' + str(mm_sheet.max_row)] = card_data['Card']
-    mm_sheet['Q' + str(mm_sheet.max_row)] = card_data['Page']
 
 
 mail_merge_data_wb.save('Mail Merge Datasheet.xlsx')

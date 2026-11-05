@@ -70,6 +70,11 @@ for row in range(2, classes.max_row+1):
             if any(d['name'] == _last_name + ', ' + _first_name and d['teacher'] == _teacher and d['level'] == _level for d in enrollments):
                 continue
 
+            # Fix all text with special characters (â€œJojoâ€)
+            _first_name = _first_name.replace('â€œ', '"').replace('â€', '"') if _first_name else _first_name
+            _last_name = _last_name.replace('â€œ', '"').replace('â€', '"') if _last_name else _last_name
+            _teacher = _teacher.replace('â€œ', '"').replace('â€', '"') if _teacher else _teacher
+            
             # Create an enrollment entry for each student/teacher combination
             for teacher_name in _teacher.split(','):
                 enrollments.append({
